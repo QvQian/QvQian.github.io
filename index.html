@@ -1,0 +1,171 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+	<title>吉卜力風格問卷</title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<link rel="stylesheet" href="assets/css/main.css" />
+</head>
+
+<body>
+	<!-- Banner -->
+	<section id="banner">
+		<div class="inner">
+			<h2>吉卜力風格問卷</h2>
+			<p>用於評估所訓練的LoRA模型是否能有效將照片套用吉卜力風格的效果</p>
+		</div>
+	</section>
+
+	<!-- Content -->
+	<section id="survey">
+		<div class="wrapper">
+			<div class="inner">
+				<!-- Questionnaire -->
+				<section>
+					<h2 id="questionTitle" class="major">題目</h2>
+					<div>
+						<img id="leftImage" src="" style="max-width: 400px;" />
+						<img id="rightImage" src="" style="max-width: 400px; margin-left: 20px;" />
+					</div>
+					<br>
+
+
+					<div class="row">
+						<div class="col-6 col-12-medium">
+							<ul class="actions">
+								<li><a href="#" class="button primary" onclick="submitAns('Y')">是</a></li>
+							</ul>
+
+							<ul class="actions">
+								<li><a href="#" class="button" onclick="submitAns('N')">否</a></li>
+							</ul>
+							<br>
+						</div>
+					</div>
+				</section>
+
+				<!-- Statement -->
+				<section>
+					<h2 class="major">問卷內容</h2>
+					<div>在問卷中，您可能會遇到以下類型的問題，
+						請根據您個人想法填答「是」或者「否」。</div>
+					<br>
+
+					<div><b>相似度判斷</b></div>
+					<div style="padding-left: 2em;">
+						<div>ex. 您是否認為左側的照片與右側生成的圖片中的主體動物相似？</div>
+						<div>請根據您觀察到的動物整體形象及特徵來進行評估。</div>
+					</div>
+					<br>
+
+					<div><b>風格判斷</b></div>
+					<div style="padding-left: 2em;">
+						<div>ex. 您是否認為下列圖片具有吉卜力風格或類似吉卜力風格？</div>
+						<div>請依據圖像的整體風格和視覺效果作出判斷。</div>
+					</div>
+					<br>
+
+					<div><b>吉卜力風格參考特徵</b></div>
+					<div style="padding-left: 2em;">
+						<div>清晰的輪廓</div>
+						<div>平塗上色，光影關係偏向使用色塊表現</div>
+						<div>較為簡單的五官，細節描繪不多</div>
+						<div>動物具有擬人化特性</div>
+					</div>
+					<br>
+
+					<div><b>吉卜力風格參考圖片</b></div>
+					<br>
+					<div class="image-container">
+						<img src="images/test.png" alt="吉卜力風格參考圖片">
+					</div>
+					<br><br><br>
+
+					<div><b>感謝您參與本次問卷調查！</b></div>
+					<br>
+				</section>
+				<br>
+
+			</div>
+		</div>
+	</section>
+
+	<!-- Footer  -->
+	<section id="footer">
+		<div class="inner">
+			<p> 2024 吉卜力風格問卷. 僅作學術使用</p>
+		</div>
+	</section>
+
+	<!-- Javascript -->
+	<script>
+		const inputs = ["./images/test_Input.png"];
+		const outputs = ["./images/test_Output1.png", "./images/test_Output2.png", "./images/test_Output3.png", "./images/test_Output4.png"];
+		const questions = ["您是否認為下列圖片具有吉卜力風格或類似吉卜力風格？"
+			, "您是否認為左側的照片與右側生成的圖片中的主體動物相似？"];
+
+		function shuffleArray(arr) {
+			for (let i = arr.length - 1; i > 0; i--) {
+				const j = Math.floor(Math.random() * (i + 1));
+				[arr[i], arr[j]] = [arr[j], arr[i]];
+			}
+			return arr;
+		}
+
+		const shuffledOutputs = shuffleArray([...outputs]);
+		let currentIndex = 0;
+
+		function getNextImage() {
+			if (currentIndex >= shuffledOutputs.length) {
+				shuffleArray(shuffledOutputs);
+				currentIndex = 0;
+			}
+			return shuffledOutputs[currentIndex++];
+		}
+
+		function loadQuestion() {
+			const inputImage = inputs[0];
+			const outputImage = getNextImage();
+			const questionText = "您是否認為左側的照片與右側生成的圖片中的主體動物相似？";
+
+			document.getElementById("leftImage").src = inputImage;
+			document.getElementById("rightImage").src = outputImage;
+			document.getElementById("questionTitle").innerText = questionText;
+		}
+
+		function submitAns(answer) {
+			// submit 'Y' or 'N'
+			const payload = { answer: answer };
+			fetch("https://script.google.com/macros/s/AKfycbwYhQ2Gz6sEphrB7xwglafgV3XHHZlVhD-raXBQTE9BZSUwYeBW1x_HfHZDaUIleGfc/exec", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(payload)
+			})
+				.then(response => response.json())
+				.then(data => {
+					if (data.result === "success") {
+						console.log("submit successful");
+					} else {
+						console.error("submit failed");
+					}
+				})
+				.catch(error => console.error("Error:", error));
+
+
+			loadQuestion();
+
+
+
+			// const scrollY = window.scrollY;
+			// window.scrollTo(0, scrollY);
+
+			// localStorage.setItem("scrollPosition", window.scrollY);
+		}
+
+		document.addEventListener("DOMContentLoaded", loadQuestion);
+	</script>
+
+</body>
+
+</html>
